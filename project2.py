@@ -75,7 +75,8 @@ def run_test_suite():
     output_string = 'n,Recursive Result,Recursive Time,Dynamic Result,Dynamic Time,\n'
     for n in range(1, n_max + 1):
         print('Testing n=' + str(n) + "...")
-        for _ in range(1, samples + 1):
+        for r in range(1, samples + 1):
+            print('\tRun ' + str(r) + '... ', end='', flush=True)
             output_line = str(n) + ","
             start_time = time.time()
             probability = calc_probability_recursive(n, n, 0.4, 1.0 - 0.4)
@@ -88,6 +89,7 @@ def run_test_suite():
             run_time = end_time - start_time
             output_line += str(probability) + "," + str(run_time) + ","
             output_string += output_line + "\n"
+            print('Done.')
     with open(filename, 'w') as f:
         f.write(output_string)
     print('Done! Output file', filename, 'written.')
@@ -95,8 +97,9 @@ def run_test_suite():
 
 def run_calc_probability_recursive():
     """
-    Interactively calculate a probability result.
-    :return:
+    Interactively calculate a probability result using the
+    recursive algorithm.
+    :return: nothing but the printed result
     """
     print('Please enter the number of games needed to win the series (n)')
     n = int(input(' >>  '))
@@ -121,8 +124,9 @@ def run_calc_probability_recursive():
 
 def run_calc_probability_dynamic():
     """
-    Interactively calculate a probability result.
-    :return:
+    Interactively calculate a probability result using the
+    dynamic algorithm.
+    :return: nothing but the printed result
     """
     print('Please enter the number of games needed to win the series (n)')
     n = int(input(' >>  '))
@@ -139,7 +143,7 @@ def calc_probability_recursive(i, j, p, q, print_table=False):
     """
     Calculate the probability of the red sox winning a series that requires
     a certain number of wins, with a certain probability of winning any
-    given game.
+    given game using a recursive programming method.
     :param print_table: whether or not to print the recursive function table
     :param i: number of wins needed by Red Sox to win series
     :param j: number of wins needed by Yankees to win series
@@ -185,12 +189,14 @@ def table_to_csv(table):
 
 def calc_probability_dynamic(i, j, p, q):
     """
-
-    :param i:
-    :param j:
-    :param p:
-    :param q:
-    :return:
+    Calculate the probability of the red sox winning a series that requires
+    a certain number of wins, with a certain probability of winning any
+    given game using a dynamic programming method.
+    :param i: number of wins needed by Red Sox to win series
+    :param j: number of wins needed by Yankees to win series
+    :param p: probability Sox win given game
+    :param q: probability Yankees win given game
+    :return: the probability of the Sox winning the series
     """
     prob_table = [[-1 for _ in range(j+1)] for _ in range(i+1)]
     for idx in range(i-1, -1, -1):
