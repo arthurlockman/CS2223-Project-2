@@ -11,17 +11,6 @@ developed by Arthur.
 import time
 import os
 
-
-class Tree:
-    def __init__(self, cargo, left=None, right=None):
-        self.cargo = cargo
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        return str(self.cargo)
-
-
 dynamic_table = []
 
 
@@ -42,6 +31,7 @@ def main_menu():
     print('Please choose an option: ')
     print('1: Compute the probability of the Red Sox winning a series with a recursive algorithm')
     print('2: Compute the probability of the Red Sox winning a series with a dynamic algorithm')
+    print('3: Run interactive test suite')
     print('---')
     print('9: Exit the program')
     get_menu_choice(input(' >>  '))
@@ -56,8 +46,10 @@ def get_menu_choice(choice):
     choice = choice.lower()
     if choice == '1':
         run_calc_probability_recursive()
-    if choice == '2':
-        calc_probability_dynamic(4, 4, 0.4, 0.6)
+    elif choice == '2':
+        run_calc_probability_dynamic()
+    elif choice == '3':
+        run_test_suite()
     elif choice == '9':
         print('Goodbye!')
         exit()
@@ -66,6 +58,39 @@ def get_menu_choice(choice):
     print('Press the ANY key to return to the main menu')
     input()
     main_menu()
+
+
+def run_test_suite():
+    """
+    Run an interactive test suite on the algorithms.
+    :return: none
+    """
+    print('This test suite will run both algorithms with many different n inputs (p=0.4), and time the results.')
+    print('Please input the highest n you wish to test')
+    n_max = int(input(' >>  '))
+    print('Please input the number of samples to test at each n increment')
+    samples = int(input(' >>  '))
+    print('Please input the name of the output file you wish to write')
+    filename = input(' >>  ')
+    output_string = 'n,Recursive Result,Recursive Time,Dynamic Result,Dynamic Time,\n'
+    for n in range(1, n_max + 1):
+        print('Testing n=' + str(n) + "...")
+        for _ in range(1, samples + 1):
+            output_line = str(n) + ","
+            start_time = time.time()
+            probability = calc_probability_recursive(n, n, 0.4, 1.0 - 0.4)
+            end_time = time.time()
+            run_time = end_time - start_time
+            output_line += str(probability) + "," + str(run_time) + ","
+            start_time = time.time()
+            probability = calc_probability_dynamic(n, n, 0.4, 1.0 - 0.4)
+            end_time = time.time()
+            run_time = end_time - start_time
+            output_line += str(probability) + "," + str(run_time) + ","
+            output_string += output_line + "\n"
+    with open(filename, 'w') as f:
+        f.write(output_string)
+    print('Done! Output file', filename, 'written.')
 
 
 def run_calc_probability_recursive():
@@ -92,6 +117,22 @@ def run_calc_probability_recursive():
     print("Probability: " + str(probability) + ", took " + str(run_time) + " seconds")
     if print_table:
         table_to_csv(dynamic_table)
+
+
+def run_calc_probability_dynamic():
+    """
+    Interactively calculate a probability result.
+    :return:
+    """
+    print('Please enter the number of games needed to win the series (n)')
+    n = int(input(' >>  '))
+    print('Please enter the probability that the Red Sox win the game')
+    p = float(input(' >>  '))
+    start_time = time.time()
+    probability = calc_probability_dynamic(n, n, p, 1.0 - p)
+    end_time = time.time()
+    run_time = end_time - start_time
+    print("Probability: " + str(probability) + ", took " + str(run_time) + " seconds")
 
 
 def calc_probability_recursive(i, j, p, q, print_table=False):
@@ -151,9 +192,16 @@ def calc_probability_dynamic(i, j, p, q):
     :param q:
     :return:
     """
-    root = Tree(None, None, None)
-    print(root, i, j, p, q)
-
+    prob_table = [[-1 for _ in range(j+1)] for _ in range(i+1)]
+    for idx in range(i-1, -1, -1):
+        prob_table[i][idx] = 1.0
+        prob_table[idx][i] = 0.0
+    for idx in range(i-1, -1, -1):
+        prob_table[idx][idx] = p * prob_table[idx + 1][idx] + q * prob_table[idx][idx + 1]
+        for idx1 in range(i-1, -1, -1):
+            prob_table[idx1][idx] = p * prob_table[idx1 + 1][idx] + q * prob_table[idx1][idx + 1]
+            prob_table[idx][idx1] = p * prob_table[idx + 1][idx1] + q * prob_table[idx][idx1 + 1]
+    return prob_table[0][0]
 
 if __name__ == "__main__":
     main()
