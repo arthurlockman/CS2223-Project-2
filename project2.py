@@ -1,12 +1,10 @@
 """
 Name: Arthur Lockman
-Assignment: Project 1
-The purpose of this project was to test the efficiency of two different algorithms
-which determine if two input strings are anagrams of each other. One algorithm
-is a brute force algorithm, and the other is a better algorithm designed and
-developed by Arthur.
+Assignment: Project 2
+The purpose of this project was to use recursion and dynamic programming
+to calculate the probability of a baseball team winning a series with n
+games needed to win with a given probability.
 """
-# TODO: doc header
 
 import time
 import os
@@ -199,9 +197,16 @@ def calc_probability_dynamic(i, j, p, q):
     :return: the probability of the Sox winning the series
     """
     prob_table = [[-1 for _ in range(j+1)] for _ in range(i+1)]
+    # Construct a table to store the calculated probabilities in and pre-fill
+    # the end conditions (0 and 1)
     for idx in range(i-1, -1, -1):
         prob_table[i][idx] = 1.0
         prob_table[idx][i] = 0.0
+    # Iterate through the table starting at the ending conditions to calculate the
+    # probabilities. Effectively it's generating the dynamic programming table
+    # that the recursive function creates as well, but generating it on the fly
+    # to arrive at the final value which is the result we're looking for. It stores this
+    # in the first row and column of the table, which is what is returned.
     for idx in range(i-1, -1, -1):
         prob_table[idx][idx] = p * prob_table[idx + 1][idx] + q * prob_table[idx][idx + 1]
         for idx1 in range(i-1, -1, -1):
